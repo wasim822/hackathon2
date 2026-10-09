@@ -106,7 +106,10 @@ export class CarModel {
     this.roll = 0; this.rollV = 0;
     this.heave = 0; this.heaveV = 0;
     this.wheelAngle = 0;
+    this.flip = 0; this.crashT = 0; this.crashAmp = 0;
   }
+
+  crash(strength) { this.crashT = 0.8; this.crashAmp = Math.min(0.5, strength * 0.025); this.heaveV += Math.min(6, strength * 0.3); }
 
   // physics: CarPhysics; alpha: interpolation factor; dt: frame dt
   update(ph, alpha, dt, brakeLit) {
@@ -130,7 +133,12 @@ export class CarModel {
     this.pitch += this.pitchV * dt;
     this.roll += this.rollV * dt;
     this.heave += this.heaveV * dt;
-    this.body.rotation.set(this.pitch, 0, this.roll);
+    // trick flip (Space in the air) and crash tumble
+    if (!ph.onGround && ph.airFlip > 0) this.flip += dt * 9;
+    else if (this.flip) { const t = Math.round(this.flip / (Math.PI * 2)) * Math.PI * 2; this.flip += (t - this.flip) * Math.min(1, dt * 12); if (Math.abs(t - this.flip) < 0.01) this.flip = 0; }
+    this.crashT = Math.max(0, this.crashT - dt);
+    const ck = this.crashT * this.crashAmp;
+    this.body.rotation.set(this.pitch + Math.sin(this.crashT * 30) * ck * 0.5, Math.sin(this.crashT * 22) * ck * 0.4, this.roll + this.flip + Math.sin(this.crashT * 26) * ck);
     this.body.position.y = this.heave;
 
     // wheels

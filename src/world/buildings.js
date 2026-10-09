@@ -11,13 +11,17 @@ const CURB = MAP.curbHeight;
 const CORNERS = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
 
 // ---------------------------------------------------------------- signs
-function signMaterial(b) {
+export function signMaterial(b) {
   const tex = makeSignTexture(b.sign, b.signText || b.name);
-  return new THREE.MeshBasicMaterial({ map: tex, color: new THREE.Color(1.3, 1.3, 1.3), side: THREE.FrontSide });
+  // light backgrounds would bloom into a white blob; keep them below the bloom threshold
+  const bg = b.sign.bg.startsWith('#') ? new THREE.Color(b.sign.bg) : new THREE.Color(0.5, 0.5, 0.5);
+  const lum = 0.2126 * bg.r + 0.7152 * bg.g + 0.0722 * bg.b;
+  const k = lum > 0.6 ? 0.78 : lum > 0.35 ? 1.0 : 1.3;
+  return new THREE.MeshBasicMaterial({ map: tex, color: new THREE.Color(k, k, k), side: THREE.FrontSide });
 }
 
 // panels: [{x,y,z,rotY,w,h}]
-function addSignMesh(signs, mat, panels) {
+export function addSignMesh(signs, mat, panels) {
   const geos = panels.map((p) => {
     const g = new THREE.PlaneGeometry(p.w, p.h);
     g.rotateY(p.rotY);
@@ -32,7 +36,7 @@ function addSignMesh(signs, mat, panels) {
 }
 
 // Four signs, one per face of a w x d box centred on (x,z), at height y.
-function fourSides(x, z, w, d, y, maxW, aspect = 4) {
+export function fourSides(x, z, w, d, y, maxW, aspect = 4) {
   const out = [];
   const sw = Math.min(maxW, w * 0.92), swSide = Math.min(maxW, d * 0.92);
   out.push({ x, y, z: z + d / 2 + 0.2, rotY: 0, w: sw, h: sw / aspect });
@@ -42,7 +46,7 @@ function fourSides(x, z, w, d, y, maxW, aspect = 4) {
   return out;
 }
 
-function edgeTrim(B, mat, x, y, z, w, h, d, t = 0.5) {
+export function edgeTrim(B, mat, x, y, z, w, h, d, t = 0.5) {
   for (const [sx, sz] of CORNERS) B.box(mat, t, h, t, x + (sx * w) / 2, y, z + (sz * d) / 2);
   B.box(mat, w + t, t, t, x, y + h - t, z + d / 2);
   B.box(mat, w + t, t, t, x, y + h - t, z - d / 2);
@@ -51,7 +55,7 @@ function edgeTrim(B, mat, x, y, z, w, h, d, t = 0.5) {
 }
 
 // ---------------------------------------------------------------- styles
-const STYLES = {
+export const STYLES = {
   tower(B, b, D, signs, sm) {
     const { x, z } = b; const [w, d, h] = b.size;
     const podH = 6;
@@ -206,7 +210,9 @@ const STYLES = {
     const tw = w * 0.84, td = d * 0.84;
     B.box(solid(0x1d2228, 0.5, 0.6), w, 5, d, x, CURB, z);
     B.box(glass(0x0c1f22, D.color, false, 0.8), tw, h - 5, td, x, CURB + 5, z, 0, true);
-    const fin = solid(0x8a96a3, 0.35, 0.9);
+    const fin = D.fin != null
+      ? solid(D.fin, 0.35, 0.5, new THREE.Color(D.fin).multiplyScalar(0.35).getHex())
+      : solid(0x8a96a3, 0.35, 0.9);
     const n = 6;
     for (let k = 0; k <= n; k++) {
       const ox = -tw / 2 + (tw * k) / n, oz = -td / 2 + (td * k) / n;

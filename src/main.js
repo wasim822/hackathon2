@@ -154,6 +154,7 @@ function consumeEvents() {
       effects.impact(ev.x, ev.y, ev.z, ev.nx, ev.nz, ev.strength);
       camCtl.addShake(Math.min(0.5, ev.strength * 0.025));
       model.impulse(Math.min(2, ev.strength * 0.08));
+      if (ev.strength > 8) { model.crash(ev.strength); hud.toast('CRASH!', 0.9); }
       audio.thump(ev.strength);
     } else if (ev.type === 'land') {
       if (ev.strength > 2) {
@@ -161,6 +162,13 @@ function consumeEvents() {
         camCtl.addShake(Math.min(0.35, ev.strength * 0.03));
         effects.landing(car.x, car.y, car.z, ev.strength);
         audio.thump(ev.strength * 0.7);
+      }
+      const spins = Math.round(Math.abs(ev.spin || 0) / Math.PI) * 180;
+      const tricks = [];
+      if (spins >= 180) tricks.push(`${spins}° SPIN`);
+      if ((ev.flip || 0) > 0.6) tricks.push('BARREL ROLL');
+      if (ev.airTime > 0.6) tricks.push(`AIR ${ev.airTime.toFixed(1)}s`);
+      if (tricks.length && ev.airTime > 0.4) { hud.toast(tricks.join(' + '), 1.8);
       }
     } else if (ev.type === 'bump') {
       model.impulse(Math.min(1.2, ev.strength * 4));
@@ -240,13 +248,18 @@ function frame(now) {
     // slow orbit on the title screen
     interp.heading = SPAWN.heading + Math.sin(now * 0.0002) * 0.6;
   }
-  camCtl.update(Math.max(vdt, started ? 0 : dt), interp, started ? inp : { lookX: 0, lookY: 0, lookBack: false });
+  if (window.__freeCam) {
+    // debug/screenshot hook: fixed camera
+    camera.position.copy(window.__freeCam.pos);
+    camera.lookAt(window.__freeCam.look);
+  } else camCtl.update(Math.max(vdt, started ? 0 : dt), interp, started ? inp : { lookX: 0, lookY: 0, lookBack: false });
 
   const district = districtAt(car.x, car.z);
   hud.update(vdt, car, district, perf);
   minimap.update(dt, interp);
   updateMaterials(now / 1000);
   city.globe.rotation.y += dt * 0.25;
+  for (const fn of city.animated) fn(now / 1000, dt);
   audio.update(car, inp.throttle);
 
   renderer.info.reset();
@@ -282,6 +295,6 @@ window.addEventListener('keydown', (e) => {
 hud.setCamera(camCtl.mode.name);
 
 // debug handle for automated checks
-window.__game = { car, city, camCtl, brandState, get paused() { return paused; }, modal, startGame };
+window.__game = { car, city, camCtl, THREE, brandState, get paused() { return paused; }, modal, startGame };
 
 requestAnimationFrame((t) => { lastTime = t; frame(t); });

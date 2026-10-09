@@ -49,7 +49,7 @@ export class CarPhysics {
     this.forwardSpeed = 0; this.lateralSpeed = 0;
     this.rearSlip = 0; this.frontSlip = 0;
     this.wheelspin = 0;
-    this.airTime = 0;
+    this.airTime = 0; this.airSpin = 0; this.airFlip = 0;
     this.gear = 'D';
     this.pitchGround = 0; this.rollGround = 0;
     this.savePrev();
@@ -173,7 +173,11 @@ export class CarPhysics {
       this.ayLat = Fy / m;
     } else {
       // airborne: just slight air control damping
-      this.yawRate *= Math.exp(-0.8 * dt);
+      // air control: steer spins the car for tricks
+      this.yawRate += input.steer * 7 * dt;
+      this.yawRate = clamp(this.yawRate, -7, 7) * Math.exp(-0.3 * dt);
+      this.airSpin += this.yawRate * dt;
+      if (input.handbrake) this.airFlip += dt;
       this.axLong *= 0.9; this.ayLat *= 0.9;
     }
 
@@ -257,7 +261,7 @@ export class CarPhysics {
       if (yBall > gh + 0.05) {
         // crest or drop-off: become airborne, keep vertical momentum
         this.onGround = false;
-        this.airTime = 0;
+        this.airTime = 0; this.airSpin = 0; this.airFlip = 0;
         this.y = yBall;
         this.vy -= g * dt;
       } else {
@@ -280,7 +284,9 @@ export class CarPhysics {
           const k = 1 - clamp(impact * 0.006, 0, 0.08);
           this.vx *= k; this.vz *= k;
         }
-        this.events.push({ type: 'land', strength: impact, airTime: this.airTime });
+        this.events.push({ type: 'land', strength: impact, airTime: this.airTime, spin: this.airSpin, flip: this.airFlip });
+        // land pointing along the direction of travel so tricks stay rideable
+        if (Math.abs(this.airSpin) > 1) { const sp = Math.hypot(this.vx, this.vz); if (sp > 3) { const vh = Math.atan2(this.vx, this.vz); const d = Math.atan2(Math.sin(vh - this.heading), Math.cos(vh - this.heading)); if (Math.abs(d) < 1.2) this.heading += d * 0.6; } this.yawRate *= 0.2; }
       }
     }
   }

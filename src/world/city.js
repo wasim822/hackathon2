@@ -6,7 +6,9 @@ import { DISTRICTS, GOOGLE, layoutBrands } from '../config/brands.js';
 import { ColliderWorld } from './colliders.js';
 import { rampData } from './terrain.js';
 import { Batcher } from './batcher.js';
-import { buildBrand, buildGoogle } from './buildings.js';
+import { buildGoogle } from './buildings.js';
+import { buildThemedBrand } from './brandThemes.js';
+import { buildAmbient } from './ambient.js';
 import { initMaterials, neon, glass, solid, pulseNeon } from './materials.js';
 import {
   makeAsphaltTexture, makeAsphaltRoughness, makeBrickTexture, makeGlowTexture, makeBannerTexture,
@@ -46,7 +48,12 @@ export function buildCity(scene) {
 
   // ---------------------------------------------------------- brands
   const { brands, blocks } = layoutBrands();
-  for (const b of brands) pools.push(buildBrand(B, b, signs, colliders));
+  const animated = [];
+  const brandByBlock = new Map();
+  for (const b of brands) {
+    pools.push(buildThemedBrand(B, b, signs, colliders, root, animated));
+    brandByBlock.set(b.block.join(','), b);
+  }
   const globe = buildGoogle(B, GOOGLE, signs, colliders, root);
   pools.push({ x: 0, z: 0, color: 0x4f8bff, radius: 48 });
 
@@ -59,7 +66,8 @@ export function buildCity(scene) {
       const c = blockCenter(i, j);
       B.box(sidewalkMat, bs, MAP.curbHeight, bs, c.x, 0, c.z);
       const blk = blocks.find((q) => q.i === i && q.j === j);
-      const col = DISTRICTS[blk.district].color;
+      const owner = brandByBlock.get(`${i},${j}`);
+      const col = owner ? owner.themeColor : DISTRICTS[blk.district].color;
       const nm = neon(col, 1.35);
       const t = 0.35, y = MAP.curbHeight - 0.02;
       B.box(nm, bs, 0.08, t, c.x, y, c.z + bs / 2 - t / 2);
@@ -302,6 +310,7 @@ export function buildCity(scene) {
     root.add(banner);
   }
 
+  buildAmbient(root, B, signs, colliders, animated);
   B.build(root);
 
   // ---------------------------------------------------------- ground light pools (fake wet reflections)
@@ -322,5 +331,5 @@ export function buildCity(scene) {
   poolMesh.renderOrder = 2;
   root.add(poolMesh);
 
-  return { root, colliders, brands, globe, lampCount: lamps.length };
+  return { root, colliders, brands, globe, animated, lampCount: lamps.length };
 }

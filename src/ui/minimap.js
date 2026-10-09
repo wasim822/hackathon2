@@ -56,7 +56,7 @@ export class Minimap {
     // brand buildings
     for (const b of this.brands) {
       const d = DISTRICTS[b.district];
-      g.fillStyle = hex(d.color);
+      g.fillStyle = hex(b.themeColor ?? d.color);
       const bb = b.bounds;
       g.fillRect(this.toW(bb.minX), this.toW(bb.minZ), (bb.maxX - bb.minX) * PX, (bb.maxZ - bb.minZ) * PX);
     }

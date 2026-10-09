@@ -32,7 +32,7 @@ If you crash into a company building, a Yes/No prompt appears. A site opens in a
 
 - `main.js`: game loop with fixed 120 Hz physics (capped catch-up) and interpolated rendering. Also handles brand-contact prompts, adaptive quality and actions.
 - `config/`: map grid, ramps and spawn (`map.js`); the brand and district data table with URLs (`brands.js`); vehicle tuning (`vehicles.js`).
-- `world/`: city generation (`city.js`), building archetypes (`buildings.js`), merged geometry batching (`batcher.js`), height field for curbs and ramps (`terrain.js`), static colliders with a broadphase grid (`colliders.js`), procedural textures, materials, sky, bloom.
+- `world/`: city generation (`city.js`), building archetypes (`buildings.js`), per-company themed buildings and plazas (`brandThemes.js`, one entry per brand: iconic structure, brand-coloured plaza floor, props and collision bounds), merged geometry batching (`batcher.js`), height field for curbs and ramps (`terrain.js`), static colliders with a broadphase grid (`colliders.js`), procedural textures, materials, sky, bloom.
 - `vehicle/`: bicycle-model tire physics (`carPhysics.js`), visual suspension model, smoke/sparks/skid marks, reset spot finder.
 - `camera/`, `input/`, `ui/` (HUD, minimap, website modal), `audio/` (synthesized engine).
 

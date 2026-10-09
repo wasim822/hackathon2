@@ -10,7 +10,7 @@ export const MAP = {
   half: 480,             // outermost road centerline (blocks * pitch / 2)
   wallInner: 516,        // inner face of the perimeter brick wall
   wallThickness: 6,
-  wallHeight: 6,
+  wallHeight: 10,
   plazaHalf: 80,         // central plaza (blocks removed) half-size
   googleRadius: 26,      // central landmark island radius
   blockSize: 58,         // pitch - roadWidth
@@ -39,6 +39,9 @@ export const RAMPS = [
   { kind: 'jump', axis: 'x', dir: 1, at: 160, from: -295, len: 16, width: 10, height: 2.6, lane: -5 },
   { kind: 'jump', axis: 'z', dir: 1, at: 320, from: -140, len: 16, width: 10, height: 2.6, lane: -5 },
   { kind: 'jump', axis: 'x', dir: -1, at: -320, from: 145, len: 16, width: 10, height: 2.6, lane: 5 },
+  { kind: 'jump', axis: 'x', dir: 1, at: -160, from: 195, len: 16, width: 10, height: 3, lane: 5 },
+  { kind: 'jump', axis: 'z', dir: -1, at: 400, from: -20, len: 16, width: 10, height: 3, lane: -5 },
+  { kind: 'jump', axis: 'x', dir: 1, at: 400, from: -380, len: 16, width: 10, height: 3.4, lane: 0 },
   // Elevated "skyway" decks spanning full road width between intersections
   { kind: 'hump', axis: 'x', dir: 1, at: -480, from: -148, len: 56, width: 22, height: 5, up: 18, flat: 20 },
   { kind: 'hump', axis: 'z', dir: 1, at: 480, from: 172, len: 56, width: 22, height: 5, up: 18, flat: 20 },

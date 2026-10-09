@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neon Brand City</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%23ff2fb4%22/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/src/ui/style.css" />
+</head>
+<body>
+  <canvas id="game" tabindex="0"></canvas>
+
+  <div id="hud">
+    <div id="district-box">
+      <div id="district">GOOGLE CENTRAL</div>
+      <div id="district-sub">Landmark roundabout</div>
+    </div>
+
+    <canvas id="minimap" title="Minimap (M to expand)"></canvas>
+    <div id="minimap-hint">M · expand map</div>
+
+    <div id="speedo">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <path class="track" d="M 20 95 A 50 50 0 1 1 100 95" />
+        <path id="speed-arc" class="arc" d="M 20 95 A 50 50 0 1 1 100 95" />
+      </svg>
+      <div id="speed">0</div>
+      <div id="unit">KM/H</div>
+      <div id="gear">D</div>
+    </div>
+    <div id="drift">DRIFT 0</div>
+
+    <div id="help">
+      <div class="help-title">CONTROLS <span>(H)</span></div>
+      <div class="help-body">
+        <div><b>W</b> accelerate</div>
+        <div><b>S</b> brake / reverse</div>
+        <div><b>A D</b> steer</div>
+        <div><b>Space</b> handbrake / drift</div>
+        <div><b>C</b> camera · <b>V</b> look back</div>
+        <div><b>R</b> reset car</div>
+        <div><b>Mouse</b> look (click to lock)</div>
+        <div><b>M</b> map · <b>N</b> mute · <b>F</b> stats · <b>Q</b> quality</div>
+        <div class="help-note">Crash into a company building to visit its site.</div>
+      </div>
+      <div class="help-actions">
+        <button id="btn-reset" type="button">↺ Reset car (R)</button>
+        <span id="cam-mode">CAM: CHASE</span>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+    <pre id="perf"></pre>
+    <div id="disclaimer">Unofficial fan / hackathon project · not affiliated with or endorsed by any company shown</div>
+  </div>
+
+  <div id="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-kicker">BUILDING CONTACT</div>
+      <h2 id="modal-title">Company</h2>
+      <p id="modal-msg">Visit Company's official website?</p>
+      <div id="modal-url"></div>
+      <div class="modal-buttons">
+        <button id="modal-yes" type="button">Yes</button>
+        <button id="modal-no" type="button">No</button>
+      </div>
+      <div class="modal-foot">Opens in a new tab · Esc to keep driving</div>
+    </div>
+  </div>
+
+  <div id="start">
+    <div class="start-card">
+      <h1>NEON <span>BRAND</span> CITY</h1>
+      <p>Cruise a cyberpunk metropolis with six brand districts around the Google landmark.</p>
+      <div class="start-keys">
+        <span><b>W A S D</b> drive</span><span><b>Space</b> drift</span><span><b>C</b> camera</span><span><b>R</b> reset</span><span><b>Mouse</b> look</span>
+      </div>
+      <button id="start-btn" type="button">START DRIVING</button>
+      <div id="loading">Building city…</div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
